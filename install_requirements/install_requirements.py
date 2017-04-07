@@ -27,8 +27,8 @@ class Requirements(object):
     """
 
     def __init__(self, requirements):
-        self.requirements = self._get_requirements(requirements)
         self._logger = logging.getLogger("install_requirements.Requirements")
+        self.requirements = self._get_requirements(requirements)
         self._requirements_to_install = self.check_requirements()
 
     def _get_requirements(self, requirements):
