@@ -3,6 +3,7 @@
 """
 
 import os
+import shutil
 import tempfile
 import importlib.util
 import subprocess
@@ -78,7 +79,8 @@ class Requirements(object):
             os.path.basename(get_pip_url),
             )
         try:
-            local_file, headers = urllib.request.urlretrieve(get_pip_url, get_pip_file)
+            with urllib.request.urlopen(get_pip_url) as response, open(get_pip_file, 'wb') as local_file:
+                shutil.copyfileobj(response, local_file)
             self._logger.debug("`get-pip.py` successfully downloaded.")
             return local_file
         except urllib.error.URLError:
