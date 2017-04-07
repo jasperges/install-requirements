@@ -3,16 +3,9 @@
 """
 
 import os
-import shutil
-import tempfile
 import importlib.util
-import subprocess
-import urllib.request
-import urllib.error
 import json
 import logging
-
-import bpy
 
 
 class Requirements(object):
@@ -66,57 +59,26 @@ class Requirements(object):
             return False
 
 
-    def _download_get_pip(self):
-        """Download the `get-pip.py`
-
-        Returns:
-            str or None: the local filename if the download was successful,
-                        None otherwise.
-        """
-        get_pip_url = "https://bootstrap.pypa.io/get-pip.py"
-        get_pip_file = os.path.join(
-            tempfile.gettempdir(),
-            os.path.basename(get_pip_url),
-            )
-        try:
-            with urllib.request.urlopen(get_pip_url) as response, open(get_pip_file, 'wb') as local_file:
-                shutil.copyfileobj(response, local_file)
-            self._logger.debug("`get-pip.py` successfully downloaded.")
-            return local_file
-        except urllib.error.URLError:
-            self._logger.error("Couldn't download `get-pip.py`.", exc_info=True)
-
-
-    def _install_pip(self, timeout=120):
+    def _install_pip(self, upgrade=True):
         """Install pip
 
+        Use the `ensurepip` module to install the bundled pip.
+
         Args:
-            timeout (int): The timeout for the Popen process in seconds. If the
-                        install process runs longer then this, it is killed.
+            upgrade (bool): Indicates whether or not to upgrade an existing
+                            installation of an earlier version of `pip` to
+                            the bundled version
 
         Returns:
             bool: True if installation of pip was successful, False otherwise.
         """
-        get_pip_file = self._download_get_pip()
-        if get_pip_file is None or not os.path.isfile(get_pip_file):
-            return False
-        proc = subprocess.Popen(
-            [bpy.app.binary_path_python, get_pip_file],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            )
         try:
-            outs, errs = proc.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            outs, errs = proc.communicate()
-        finally:
-            os.remove(get_pip_file)
-        if proc.returncode == 0:
+            import ensurepip
+            ensurepip.bootstrap(upgrade=upgrade)
             self._logger.debug("Pip successfully installed.")
             return True
-        else:
-            self._logger.error("Pip wasn't installed.\n%s", errs.decode('utf-8'))
+        except:
+            self._logger.error("Pip couldn't be installed.", exc_info=True)
             return False
 
 
