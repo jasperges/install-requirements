@@ -1,0 +1,4 @@
+[
+    {"pip": "psd-tools", "module": "psd_tools", "version": null},
+    {"pip": "Pillow", "module": "PIL", "version": "4.0.0"}
+]
