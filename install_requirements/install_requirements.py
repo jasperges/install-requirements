@@ -4,7 +4,7 @@
 
 import os
 import tempfile
-import importlib
+import importlib.util
 import subprocess
 import urllib.request
 import urllib.error
